@@ -1,30 +1,30 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const stampSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      ref: 'User',
+      ref: "User",
     },
     title: {
       type: String,
-      required: [true, 'Please add a title'],
+      required: [true, "Please add a title"],
       trim: true,
-      maxlength: [100, 'Title cannot be more than 100 characters'],
+      maxlength: [100, "Title cannot be more than 100 characters"],
     },
     description: {
       type: String,
       trim: true,
-      maxlength: [500, 'Description cannot be more than 500 characters'],
+      maxlength: [500, "Description cannot be more than 500 characters"],
     },
     latitude: {
       type: Number,
-      required: [true, 'Please add latitude'],
+      required: [true, "Please add latitude"],
     },
     longitude: {
       type: Number,
-      required: [true, 'Please add longitude'],
+      required: [true, "Please add longitude"],
     },
     address: {
       type: String,
@@ -32,12 +32,16 @@ const stampSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      enum: ['work', 'home', 'travel', 'dining', 'hiking', 'other'],
-      default: 'other',
+      enum: ["work", "home", "travel", "dining", "hiking", "other"],
+      default: "other",
     },
     photos: {
       type: [String],
       default: [],
+    },
+    accuracy: {
+      type: Number,
+      default: 0, // GPS accuracy in meters
     },
     notes: {
       type: String,
@@ -56,4 +60,4 @@ const stampSchema = new mongoose.Schema(
 // Index for geospatial queries (optional but useful)
 stampSchema.index({ latitude: 1, longitude: 1 });
 
-export default mongoose.model('Stamp', stampSchema);
+export default mongoose.model("Stamp", stampSchema);
