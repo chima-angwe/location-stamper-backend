@@ -20,6 +20,7 @@ const allowedOrigins = [
   // Mobile apps (allow all for development, restrict in production)
   "http://localhost:8080",
   "http://127.0.0.1:8080",
+  "http://localhost:62796",
 
   // Production
   "https://angwe-chima.github.io",
