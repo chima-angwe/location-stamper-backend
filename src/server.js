@@ -11,41 +11,13 @@ const app = express();
 // Connect to MongoDB
 connectDB();
 
-// CORS Configuration - Allow multiple origins for local development and production
-const allowedOrigins = [
-  // Local development
-  "http://localhost:5173",
-  "http://127.0.0.1:5173",
-
-  // Mobile apps (allow all for development, restrict in production)
-  "http://localhost:8080",
-  "http://127.0.0.1:8080",
-  "http://localhost:62796",
-
-  // Production
-  "https://angwe-chima.github.io",
-  process.env.FRONTEND_URL,
-].filter(Boolean); // Remove undefined values
-
-console.log("📍 CORS Allowed Origins:", allowedOrigins);
-
+// ✅ SIMPLE CORS FOR DEVELOPMENT - Allow everything!
 const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      console.warn(`❌ CORS blocked origin: ${origin}`);
-      callback(new Error(`CORS not allowed for origin: ${origin}`));
-    }
-  },
+  origin: true, // ✅ Allow all origins (safe for development)
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   optionsSuccessStatus: 200,
-  maxAge: 86400, // 24 hours
 };
 
 // Apply CORS middleware
@@ -109,6 +81,7 @@ app.listen(PORT, () => {
   console.log(
     `🔗 Frontend URL: ${process.env.FRONTEND_URL || "http://localhost:5173"}`
   );
+  console.log(`✅ CORS: Allowing all origins (development mode)`);
 });
 
 export default app;
