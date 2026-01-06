@@ -8,6 +8,9 @@ import { generalLimiter } from "./middleware/rateLimitMiddleware.js";
 // Initialize Express app
 const app = express();
 
+// ✅ TRUST PROXY - Important for Render
+app.set("trust proxy", 1);
+
 // Connect to MongoDB
 connectDB();
 
@@ -28,6 +31,7 @@ app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 // Apply general rate limiting to all requests
+// This will work correctly now that trust proxy is set
 app.use(generalLimiter);
 
 // Request logging (optional but helpful for debugging)
@@ -82,6 +86,7 @@ app.listen(PORT, () => {
     `🔗 Frontend URL: ${process.env.FRONTEND_URL || "http://localhost:5173"}`
   );
   console.log(`✅ CORS: Allowing all origins (development mode)`);
+  console.log(`✅ Trust Proxy: Enabled for Render`);
 });
 
 export default app;
