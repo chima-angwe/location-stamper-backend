@@ -1,5 +1,4 @@
 import User from "../models/User.js";
-import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 // Generate JWT Token
@@ -37,27 +36,28 @@ export const register = async (req, res) => {
       });
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // ✅ DO NOT hash password here!
+    // The User model pre('save') hook will do it automatically
 
-    // Create new user
+    // Create new user with plain password
     const user = new User({
       name,
       email,
-      password: hashedPassword,
+      password: password, // ✅ Plain password - will be hashed by pre('save')
     });
 
-    // Save to database
+    // Save to database - this triggers the pre('save') hook
     await user.save();
     console.log("✅ User created:", email);
+    console.log("📋 Password hashed by pre('save') hook");
 
-    // ✅ Generate token
+    // Generate token
     const token = generateToken(user._id.toString(), user.email);
 
-    // ✅ Return response with token
+    // Return response with token
     res.status(201).json({
       message: "Account created successfully",
-      token: token, // ✅ IMPORTANT: Must include token
+      token: token,
       user: {
         id: user._id.toString(),
         name: user.name,
@@ -89,7 +89,10 @@ export const login = async (req, res) => {
     }
 
     // Find user by email
-    const user = await User.findOne({ email });
+    // ✅ IMPORTANT: Use .select('+password') because password has select: false
+    console.log("🔍 Looking up user:", email);
+    const user = await User.findOne({ email }).select("+password");
+
     if (!user) {
       console.log("❌ User not found:", email);
       return res.status(401).json({
@@ -98,8 +101,27 @@ export const login = async (req, res) => {
       });
     }
 
-    // Check password
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    console.log("👤 User found:", {
+      id: user._id,
+      email: user.email,
+      hasPassword: !!user.password,
+      passwordLength: user.password?.length,
+    });
+
+    // Check if user has password
+    if (!user.password) {
+      console.log("❌ User has no password field:", email);
+      return res.status(401).json({
+        error: "Invalid credentials",
+        message: "Account error - no password",
+      });
+    }
+
+    console.log("🔒 Comparing passwords using matchPassword()...");
+
+    // ✅ Use the matchPassword method from User model
+    const isPasswordValid = await user.matchPassword(password);
+
     if (!isPasswordValid) {
       console.log("❌ Wrong password for:", email);
       return res.status(401).json({
@@ -108,15 +130,17 @@ export const login = async (req, res) => {
       });
     }
 
-    // ✅ Generate token
+    console.log("✅ Password valid for:", email);
+
+    // Generate token
     const token = generateToken(user._id.toString(), user.email);
 
     console.log("✅ Login successful:", email);
 
-    // ✅ Return response with token
+    // Return response with token
     res.status(200).json({
       message: "Login successful",
-      token: token, // ✅ IMPORTANT: Must include token
+      token: token,
       user: {
         id: user._id.toString(),
         name: user.name,
