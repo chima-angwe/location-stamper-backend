@@ -1,5 +1,5 @@
 import User from "../models/User.js";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 // Generate JWT Token
@@ -133,7 +133,7 @@ export const login = async (req, res) => {
 };
 
 // Get current user (protected route)
-export const getCurrentUser = async (req, res) => {
+export const getMe = async (req, res) => {
   try {
     const userId = req.user.id; // From auth middleware
 
